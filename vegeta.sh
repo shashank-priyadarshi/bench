@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export FREQUENCY="500"
-export DURATION="20"
+export FREQUENCY="10000"
+export DURATION="90"
 
 go run main.go

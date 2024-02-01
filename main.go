@@ -40,7 +40,13 @@ var (
 		Password: redis_password,
 		DB:       0,
 	})
+	stats []statistic
 )
+
+type statistic struct{
+	name string
+	timestamp int64
+}
 
 func init() {
 	startGRPC(&wg, rdbClient)
@@ -101,7 +107,8 @@ func startNATS(wg *sync.WaitGroup, rdbClient *redis.Client) {
 			return
 		}
 
-		rdbClient.Set(context.Background(), fmt.Sprintf("%s_%s", nats_key, payload.Name), receivedTime-payload.Time, 0)
+		go rdbClient.Set(context.Background(), fmt.Sprintf("%s_%s", nats_key, payload.Name), receivedTime-payload.Time, 0)
+		go stats=append(stats, statistic{name:fmt.Sprintf("%s_%s", nats_key, payload.Name), timestamp: receivedTime-payload.Time})
 	})
 }
 
@@ -146,6 +153,7 @@ func startServer(wg *sync.WaitGroup) {
 func main() {
 	startBenchmarking()
 	wg.Wait()
+	fmt.Printf("%+v\n",stats)
 }
 
 func startBenchmarking() {
